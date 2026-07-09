@@ -1,0 +1,33 @@
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env/secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local Claude config
+.claude/settings.local.json
+.claude/worktrees/
+
+# Internal planning docs (entire docs/ is internal/private)
+AGENTS.md
+CLAUDE.md
+docs/
+
+# Temp/build
+tmp/
+temp/
+dist/
+coverage/
+

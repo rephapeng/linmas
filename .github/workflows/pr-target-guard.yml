@@ -1,0 +1,24 @@
+name: PR Target Guard
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate-target:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce dev-first promotion policy
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          base="$BASE_REF"
+          head="$HEAD_REF"
+          if [ "$base" = "dev" ]; then
+            exit 0
+          fi
+          if [ "$base" = "main" ] && [ "$head" = "dev" ]; then
+            exit 0
+          fi
+          echo "Normal pull requests must target dev. Only dev -> main promotion PRs are allowed to main."
+          exit 1

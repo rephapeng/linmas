@@ -1,0 +1,26 @@
+name: Release Provenance
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        required: true
+        type: string
+      subject-path:
+        required: true
+        type: string
+permissions:
+  actions: read
+  attestations: write
+  contents: read
+  id-token: write
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: ${{ inputs.artifact-name }}
+      - uses: actions/attest@v4
+        with:
+          subject-path: ${{ inputs.subject-path }}
+          show-summary: true
