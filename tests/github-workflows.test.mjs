@@ -30,14 +30,14 @@ test('release workflow supports tag push and explicit dispatch and verifies main
   assert.match(text, /npm pack/);
   assert.match(text, /permissions:\s*[\s\S]*contents:\s*write/);
   assert.match(text, /permissions:\s*[\s\S]*id-token:\s*write/);
-  assert.match(text, /actions\/upload-artifact@v7/);
+  assert.match(text, /actions\/upload-artifact@[0-9a-f]{40} # v7/);
   assert.match(text, /name:\s*release-artifact/);
   assert.match(text, /name:\s*Ensure npm supports trusted publishing/);
   assert.match(text, /npm install -g npm@11/);
   assert.match(text, /npm publish --access public/);
   assert.doesNotMatch(text, /NODE_AUTH_TOKEN:/);
   assert.doesNotMatch(text, /secrets\.NPM_TOKEN/);
-  assert.match(text, /softprops\/action-gh-release@v3/);
+  assert.match(text, /softprops\/action-gh-release@[0-9a-f]{40} # v3/);
   assert.match(text, /tag_name:\s*\$\{\{ env\.RELEASE_TAG \}\}/);
   assert.match(text, /uses:\s*\.\/\.github\/workflows\/generator-generic-ossf-slsa3-publish\.yml/);
 });
@@ -64,16 +64,16 @@ test('provenance workflow is a reusable attestation workflow with artifact downl
   assert.match(text, /attestations:\s*write/);
   assert.match(text, /contents:\s*read/);
   assert.match(text, /id-token:\s*write/);
-  assert.match(text, /actions\/download-artifact@v8/);
+  assert.match(text, /actions\/download-artifact@[0-9a-f]{40} # v8/);
   assert.match(text, /name:\s*\$\{\{ inputs\.artifact-name \}\}/);
-  assert.match(text, /actions\/attest@v4/);
+  assert.match(text, /actions\/attest@[0-9a-f]{40} # v4/);
   assert.match(text, /subject-path:\s*\$\{\{ inputs\.subject-path \}\}/);
 });
 
 test('provenance workflow uses subject-path attestation without custom predicate requirement', () => {
   const text = read('.github/workflows/generator-generic-ossf-slsa3-publish.yml');
-  assert.match(text, /actions\/download-artifact@v8/);
-  assert.match(text, /actions\/attest@v4/);
+  assert.match(text, /actions\/download-artifact@[0-9a-f]{40} # v8/);
+  assert.match(text, /actions\/attest@[0-9a-f]{40} # v4/);
   assert.match(text, /subject-path:\s*\$\{\{ inputs\.subject-path \}\}/);
   assert.doesNotMatch(text, /predicate-type:/);
 });
@@ -147,16 +147,16 @@ test('workflows use modern action major versions', () => {
   const release = fs.readFileSync(path.resolve('.github/workflows/release.yml'), 'utf8');
   const provenance = fs.readFileSync(path.resolve('.github/workflows/generator-generic-ossf-slsa3-publish.yml'), 'utf8');
 
-  assert.match(ci, /actions\/checkout@v7/);
-  assert.match(ci, /actions\/setup-node@v6/);
+  assert.match(ci, /actions\/checkout@[0-9a-f]{40} # v7/);
+  assert.match(ci, /actions\/setup-node@[0-9a-f]{40} # v6/);
 
-  assert.match(release, /actions\/checkout@v7/);
-  assert.match(release, /actions\/setup-node@v6/);
-  assert.match(release, /actions\/upload-artifact@v7/);
+  assert.match(release, /actions\/checkout@[0-9a-f]{40} # v7/);
+  assert.match(release, /actions\/setup-node@[0-9a-f]{40} # v6/);
+  assert.match(release, /actions\/upload-artifact@[0-9a-f]{40} # v7/);
   assert.match(release, /npm install -g npm@11/);
-  assert.match(release, /softprops\/action-gh-release@v3/);
+  assert.match(release, /softprops\/action-gh-release@[0-9a-f]{40} # v3/);
 
-  assert.match(provenance, /actions\/download-artifact@v8/);
+  assert.match(provenance, /actions\/download-artifact@[0-9a-f]{40} # v8/);
 
   assert.doesNotMatch(ci + release + provenance, /actions\/checkout@v6/);
   assert.doesNotMatch(ci + release, /actions\/setup-node@v5/);
@@ -165,7 +165,8 @@ test('workflows use modern action major versions', () => {
   assert.doesNotMatch(provenance, /actions\/download-artifact@v5/);
 });
 
-// ponytail: action SHAs are a follow-up hardening step once maintainers choose exact pins.
+// Third-party actions are pinned to full commit SHAs (with a trailing version
+// comment) so a moved tag cannot silently swap the action out from under a release.
 
 
 test('release workflow reads release notes file and passes body to gh release', () => {
